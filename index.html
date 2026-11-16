@@ -306,16 +306,19 @@ function utf8ToB64(str) { const b = new TextEncoder().encode(str); let bin = '';
 function b64ToUtf8(b64) { const bin = atob(b64.replace(/\s/g, '')); const b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return new TextDecoder('utf-8').decode(b); }
 
 async function fetchRepo(repoName) {
-  try {
-    const res = await fetch(ghUrl(repoName), { headers: ghHeaders() });
-    if (res.status === 404) return { data: { orders: [], brokers: [] }, sha: null };
-    if (!res.ok) throw new Error('Fetch failed');
-    const json = await res.json();
-    let parsed = JSON.parse(b64ToUtf8(json.content));
-    if (!parsed.orders) parsed.orders = [];
-    if (!parsed.brokers) parsed.brokers = [];
-    return { data: parsed, sha: json.sha };
-  } catch(e) { return { data: { orders: [], brokers: [] }, sha: null }; }
+  const res = await fetch(ghUrl(repoName), { headers: ghHeaders() });
+  if (res.status === 404) return { data: { orders: [], brokers: [] }, sha: null };
+  if (!res.ok) {
+    const details = await res.json().catch(() => ({}));
+    const error = new Error(details.message || `GitHub HTTP ${res.status}`);
+    error.status = res.status;
+    throw error;
+  }
+  const json = await res.json();
+  let parsed = JSON.parse(b64ToUtf8(json.content));
+  if (!parsed.orders) parsed.orders = [];
+  if (!parsed.brokers) parsed.brokers = [];
+  return { data: parsed, sha: json.sha };
 }
 
 async function pushRepo(repoName, data, sha) {
@@ -603,28 +606,40 @@ function handleApprovalLink() {
 async function createBrokerGist() {
   const name = prompt('اسم الوسيط الجديد:');
   if(!name) return;
-  
+  if(!state.token) { alert('لا يوجد رمز GitHub صالح. سجّل الدخول من جديد.'); return; }
   try {
+    showToast('جاري التحقق من صلاحية GitHub...');
+    const authRes = await fetch('https://api.github.com/user', { headers: ghHeaders() });
+    const authInfo = await authRes.json().catch(() => ({}));
+    if(!authRes.ok) {
+      localStorage.removeItem('hajz_token');
+      throw new Error(authInfo.message || `GitHub HTTP ${authRes.status}`);
+    }
     showToast('جاري إنشاء الحساب...');
     const res = await fetch('https://api.github.com/gists', {
       method: 'POST',
-      headers: ghHeaders(),
+      headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
         description: 'Hajz Broker: ' + name,
         public: false,
-        files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }) } }
+        files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }, null, 2) } }
       })
     });
-    
-    if(!res.ok) throw new Error('فشل إنشاء Gist');
-    const gist = await res.json();
-    
-    db.brokers.push({ name, gistId: gist.id });
+    const result = await res.json().catch(() => ({}));
+    if(!res.ok) {
+      const error = new Error(result.message || `GitHub HTTP ${res.status}`);
+      error.status = res.status;
+      throw error;
+    }
+    if(!result.id) throw new Error('لم يُرجع GitHub معرّف Gist صالحاً');
+    db.brokers.push({ name, gistId: result.id });
     await saveData();
     paint();
     showToast('تم إنشاء الوسيط بنجاح ✓');
   } catch(e) {
-    alert('حدث خطأ: ' + e.message);
+    const detail = e.status === 401 ? 'الرمز غير صالح أو منتهي. سجّل الخروج ثم ادخل برمز Classic يملك repo و gist.' :
+      e.status === 403 ? 'الرمز صالح، لكنه لا يملك صلاحية إنشاء Gists أو وصل إلى حد الطلبات.' : e.message;
+    alert('تعذر إنشاء الوسيط: ' + detail);
   }
 }
 
@@ -677,7 +692,8 @@ async function handleLogin(){
     handleApprovalLink(); // التحقق مما إذا كان الرابط يحتوي على طلب للاعتماد
     
   }catch(e){
-    alert('فشل الاتصال: '+e.message);
+    localStorage.removeItem('hajz_token');
+    alert('فشل الاتصال بـ GitHub: '+e.message);
     $('loginBtn').textContent='دخول'; $('loginBtn').disabled=false;
   }
 }
