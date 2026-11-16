@@ -147,22 +147,19 @@ body{background:var(--bg);display:flex;flex-direction:column;transition:backgrou
 </head>
 <body>
 
-<!-- شاشة الدخول -->
-<div class="login-overlay" id="loginOverlay">
+<!-- شاشة الدخول (للمدير والمصمم فقط) -->
+<div class="login-overlay" id="loginOverlay" style="display:none;">
   <div class="login-box">
     <h1>حجـــز</h1>
-    <p>نظام إدارة الطلبات</p>
+    <p>نظام إدارة الطلبات (للفريق فقط)</p>
     <label for="loginRole">دورك في النظام</label>
     <select id="loginRole">
-      <option value="broker">وسيط</option>
       <option value="secretary">سكرتير</option>
       <option value="designer">مصمم</option>
     </select>
-    <!-- تم تعديل النص هنا -->
     <label for="loginName">اسمك</label>
     <input type="text" id="loginName" placeholder="اكتب اسمك هنا" autocomplete="off">
-    
-    <label for="loginToken">أدخل الرمز</label>
+    <label for="loginToken">أدخل الرمز (Token)</label>
     <input type="password" id="loginToken" placeholder="••••••••" dir="ltr" autocomplete="off">
     <button id="loginBtn">دخول</button>
   </div>
@@ -170,11 +167,11 @@ body{background:var(--bg);display:flex;flex-direction:column;transition:backgrou
 
 <div class="screen" id="mainScreen" style="display:none;">
   <header class="app-header">
-    <div class="greeting"><h2>حجـــز</h2><p>نظام متابعة الطلبات</p></div>
+    <div class="greeting"><h2>حجـــز</h2><p id="headerSubtitle">نظام متابعة الطلبات</p></div>
     <div class="header-controls">
       <div class="header-badge" id="headerMediatorBadge"><i class="fas fa-user"></i><span>...</span></div>
       <button class="dark-mode-toggle" id="darkToggle" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
-      <button class="dark-mode-toggle" id="logoutBtn" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></button>
+      <button class="dark-mode-toggle" id="logoutBtn" title="خروج" style="display:none;"><i class="fas fa-sign-out-alt"></i></button>
     </div>
   </header>
 
@@ -191,7 +188,7 @@ body{background:var(--bg);display:flex;flex-direction:column;transition:backgrou
         <div class="balance-footer"><span id="accountOwner">الحساب: —</span></div>
       </div>
 
-      <button class="primary-btn" style="width:calc(100% - 32px);margin:14px 16px 0;padding:13px" onclick="openNewRequest()"><i class="fas fa-plus"></i> إضافة طلب جديد</button>
+      <button class="primary-btn" style="width:calc(100% - 32px);margin:14px 16px 0;padding:13px" onclick="openNewRequest()" id="newRequestBtn"><i class="fas fa-plus"></i> إضافة طلب جديد</button>
 
       <div class="section-title"><i class="fas fa-briefcase"></i> الطلبات الحالية <span class="see-all" onclick="switchPage('page-orders')">عرض الكل</span></div>
       <div class="service-card" id="homeActive"></div>
@@ -215,10 +212,14 @@ body{background:var(--bg);display:flex;flex-direction:column;transition:backgrou
       <div class="service-card" id="changesList"></div>
     </section>
 
-    <!-- تبويب الطلبات الواردة (للسكرتير والمصمم فقط) -->
-    <section id="page-inbox" class="screen-page">
-      <div class="page-heading"><h1>الطلبات الواردة</h1><p>طلبات أرسلها الوسطاء بانتظار الاعتماد.</p></div>
-      <div class="service-card" id="inboxList"></div>
+    <!-- تبويب إدارة الوسطاء (للسكرتير والمصمم فقط) -->
+    <section id="page-brokers" class="screen-page">
+      <div class="page-heading">
+        <h1>إدارة الوسطاء</h1>
+        <p>إنشاء روابط مخصصة لكل وسيط (بدون توكن).</p>
+      </div>
+      <button class="primary-btn" style="width:calc(100% - 32px);margin:0 16px 15px;padding:12px" onclick="createBrokerGist()"><i class="fas fa-user-plus"></i> إضافة وسيط جديد</button>
+      <div class="service-card" id="brokersList"></div>
     </section>
 
     <section id="page-profile" class="screen-page">
@@ -231,12 +232,12 @@ body{background:var(--bg);display:flex;flex-direction:column;transition:backgrou
 <nav class="bottom-nav-wrapper" id="bottomNavWrapper" style="display:none;">
   <div class="bottom-nav" id="bottomNav">
     <button class="nav-item active" data-page="page-home" onclick="switchPage('page-home')"><i class="fas fa-house"></i><span>الرئيسية</span></button>
-    <button class="nav-item" data-page="page-orders" onclick="switchPage('page-orders')"><i class="fas fa-clipboard-list"></i><span>طلباتي</span></button>
+    <button class="nav-item" data-page="page-orders" onclick="switchPage('page-orders')"><i class="fas fa-clipboard-list"></i><span>الطلبات</span></button>
     <button class="nav-item" data-page="page-ready" onclick="switchPage('page-ready')"><i class="fas fa-circle-check"></i><span>الجاهزة</span></button>
     <button class="nav-item" data-page="page-changes" onclick="switchPage('page-changes')"><i class="fas fa-rotate"></i><span>التعديلات</span></button>
-    <button class="nav-item hidden" id="navInbox" data-page="page-inbox" onclick="switchPage('page-inbox')"><i class="fas fa-inbox"></i><span>الواردة</span></button>
+    <button class="nav-item hidden" id="navBrokers" data-page="page-brokers" onclick="switchPage('page-brokers')"><i class="fas fa-users"></i><span>الوسطاء</span></button>
     <button class="nav-item" data-page="page-profile" onclick="switchPage('page-profile')"><i class="fas fa-user"></i><span>الحساب</span></button>
-    <button class="nav-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>خروج</span></button>
+    <button class="nav-item" onclick="logout()" id="navLogout" style="display:none;"><i class="fas fa-sign-out-alt"></i><span>خروج</span></button>
   </div>
 </nav>
 
@@ -276,11 +277,12 @@ const state = {
   token: localStorage.getItem('hajz_token') || '',
   role: localStorage.getItem('hajz_role') || '',
   userName: localStorage.getItem('hajz_name') || '',
-  sha: null, saving: false
+  sha: null, saving: false,
+  gistId: null // للوسيط
 };
 
-let db = { orders: [], mediators: [] };
-let inbox = [];
+let db = { orders: [], brokers: [] };
+let currentBrokerGist = null;
 
 const statusLabels={new:'جديد',in_progress:'قيد التنفيذ',ready:'جاهز',revision:'قيد التعديل',cancelled:'ملغي'};
 const arabicDays = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
@@ -289,12 +291,7 @@ const arabicMonths = ['يناير','فبراير','مارس','أبريل','ما�
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function money(n){return new Intl.NumberFormat('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(n)||0)+' ر.س'}
-function fmtDate(iso){
-  if(!iso)return '—';
-  const d=new Date(iso);
-  if(isNaN(d))return '—';
-  return `${arabicDays[d.getDay()]} ${d.getDate()} ${arabicMonths[d.getMonth()]}`;
-}
+function fmtDate(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))return '—';return `${arabicDays[d.getDay()]} ${d.getDate()} ${arabicMonths[d.getMonth()]}`;}
 function paidTotal(o){return (o.payments||[]).reduce((a,p)=>a+Number(p.amount||0),0)}
 function remaining(o){return Math.max(0,Number(o.priceAmount||0)-paidTotal(o))}
 function showToast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>el.classList.remove('show'),2500)}
@@ -302,15 +299,8 @@ function showSheet(title,html){$('sheetTitle').textContent=title;$('sheetContent
 function closeSheet(){$('overlay').classList.remove('open');}
 function empty(msg){return `<div class="empty-state"><i class="fas fa-inbox"></i><h3>${esc(msg)}</h3></div>`}
 
-/* ============ GitHub Sync ============ */
-function getBrokerRepoName(name) {
-  return 'hajz-inbox-' + name.trim().toLowerCase().replace(/\s+/g, '-');
-}
-
-// دعم الأسماء العربية في الروابط
-function ghUrl(repoName) { 
-  return `https://api.github.com/repos/${REPOS.DATA.owner}/${encodeURIComponent(repoName)}/contents/${REPOS.DATA.path}`; 
-}
+/* ============ GitHub API Helpers ============ */
+function ghUrl(repoName) { return `https://api.github.com/repos/${REPOS.DATA.owner}/${repoName}/contents/${REPOS.DATA.path}`; }
 function ghHeaders() { return { 'Authorization': `Bearer ${state.token}`, 'Accept': 'application/vnd.github+json' }; }
 function utf8ToB64(str) { const b = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]); return btoa(bin); }
 function b64ToUtf8(b64) { const bin = atob(b64.replace(/\s/g, '')); const b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return new TextDecoder('utf-8').decode(b); }
@@ -318,13 +308,14 @@ function b64ToUtf8(b64) { const bin = atob(b64.replace(/\s/g, '')); const b = ne
 async function fetchRepo(repoName) {
   try {
     const res = await fetch(ghUrl(repoName), { headers: ghHeaders() });
-    if (res.status === 404) return { data: { orders: [] }, sha: null };
+    if (res.status === 404) return { data: { orders: [], brokers: [] }, sha: null };
     if (!res.ok) throw new Error('Fetch failed');
     const json = await res.json();
     let parsed = JSON.parse(b64ToUtf8(json.content));
-    if (Array.isArray(parsed)) parsed = { orders: parsed };
+    if (!parsed.orders) parsed.orders = [];
+    if (!parsed.brokers) parsed.brokers = [];
     return { data: parsed, sha: json.sha };
-  } catch(e) { return { data: { orders: [] }, sha: null }; }
+  } catch(e) { return { data: { orders: [], brokers: [] }, sha: null }; }
 }
 
 async function pushRepo(repoName, data, sha) {
@@ -340,38 +331,55 @@ async function pushRepo(repoName, data, sha) {
   return j.content.sha;
 }
 
+/* ============ Gist Helpers ============ */
+async function fetchGist(gistId) {
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`);
+    if (!res.ok) throw new Error('Gist not found');
+    const json = await res.json();
+    const content = JSON.parse(json.files['data.json'].content);
+    return { data: content, id: gistId };
+  } catch(e) {
+    return null;
+  }
+}
+
+async function updateGist(gistId, data) {
+  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+    method: 'PATCH',
+    headers: ghHeaders(),
+    body: JSON.stringify({ files: { 'data.json': { content: JSON.stringify(data, null, 2) } } })
+  });
+  if (!res.ok) throw new Error('Failed to update Gist');
+}
+
 /* ============ Actions ============ */
 async function saveData() {
   if(state.saving) return; state.saving=true;
   try {
-    if (state.role === 'broker') {
-      const repoName = getBrokerRepoName(state.userName);
-      const r = await fetchRepo(repoName);
-      state.sha = await pushRepo(repoName, db, r.sha);
-    } else {
-      const r = await fetchRepo('hajz-data');
-      state.sha = await pushRepo('hajz-data', db, r.sha);
-    }
+    const r = await fetchRepo('hajz-data');
+    state.sha = await pushRepo('hajz-data', db, r.sha);
   } catch(e) { showToast('فشل الحفظ!'); } finally { state.saving=false; }
 }
 
 /* ============ Rendering ============ */
 function getRoleName() {
-  if (state.role === 'broker') return 'وسيط';
+  if (state.gistId) return 'وسيط';
   if (state.role === 'secretary') return 'سكرتير';
   if (state.role === 'designer') return 'مصمم';
-  return state.role;
+  return 'فريق العمل';
 }
 
 function updateHeader(){
-  $('headerMediatorBadge').innerHTML = `<i class="fas fa-user"></i><span>${esc(state.userName)} (${getRoleName()})</span>`;
-  $('accountOwner').textContent = `الحساب: ${state.userName}`;
+  const name = state.gistId && currentBrokerGist ? currentBrokerGist.brokerName : state.userName;
+  $('headerMediatorBadge').innerHTML = `<i class="fas fa-user"></i><span>${esc(name)} (${getRoleName()})</span>`;
+  $('accountOwner').textContent = `الحساب: ${name}`;
   
-  if (state.role === 'broker') {
+  if (state.gistId) {
     $('cardLabel1').textContent = 'المستحق';
     $('cardLabel2').textContent = 'المدفوع';
     $('cardLabel3').textContent = 'المتبقي';
-    const myOrders = db.orders.filter(o => o.status !== 'cancelled');
+    const myOrders = (currentBrokerGist?.orders || []).filter(o => o.status !== 'cancelled');
     const total = myOrders.reduce((a,o) => a + Number(o.priceAmount||0), 0);
     const paid = myOrders.reduce((a,o) => a + paidTotal(o), 0);
     const rem = total - paid;
@@ -381,12 +389,12 @@ function updateHeader(){
   } else {
     $('cardLabel1').textContent = 'قيد التنفيذ';
     $('cardLabel2').textContent = 'الجاهزة';
-    $('cardLabel3').textContent = 'الواردة';
+    $('cardLabel3').textContent = 'الوسطاء';
     const active = db.orders.filter(o => o.status === 'in_progress').length;
     const ready = db.orders.filter(o => o.status === 'ready').length;
     $('balanceValue').textContent = active + ' طلب';
     $('salaryValue').textContent = ready + ' طلب';
-    $('pendingValue').textContent = inbox.length + ' طلب';
+    $('pendingValue').textContent = db.brokers.length + ' وسيط';
   }
 }
 
@@ -407,46 +415,51 @@ function orderCard(o, showPrice = true) {
 }
 
 function paint(){
-  if (state.role === 'broker') {
-    const active = db.orders.filter(o => ['new','in_progress'].includes(o.status));
-    const ready = db.orders.filter(o => o.status === 'ready');
-    const changes = db.orders.filter(o => o.status === 'revision');
+  if (state.gistId) {
+    const orders = currentBrokerGist?.orders || [];
+    const active = orders.filter(o => ['new','in_progress'].includes(o.status));
+    const ready = orders.filter(o => o.status === 'ready');
+    const changes = orders.filter(o => o.status === 'revision');
+    
     $('homeActive').innerHTML = active.slice(0,3).map(o=>orderCard(o)).join('') || empty('لا توجد طلبات قيد التنفيذ');
     $('homeReady').innerHTML = ready.slice(0,2).map(o=>orderCard(o)).join('') || empty('لا توجد أعمال جاهزة');
-    $('ordersList').innerHTML = active.map(o=>orderCard(o)).join('') || empty('لا توجد طلبات جديدة');
+    $('ordersList').innerHTML = active.map(o=>orderCard(o)).join('') || empty('لا توجد طلبات');
     $('readyList').innerHTML = ready.map(o=>orderCard(o)).join('') || empty('لا توجد أعمال جاهزة');
     $('changesList').innerHTML = changes.map(o=>orderCard(o)).join('') || empty('لا توجد تعديلات');
-    $('navInbox').classList.add('hidden');
+    
+    // إخفاء أزرار الإدارة للوسيط
+    $('navBrokers').classList.add('hidden');
+    $('navLogout').style.display = 'none';
   } else {
     const active = db.orders.filter(o => ['new','in_progress'].includes(o.status));
     const ready = db.orders.filter(o => o.status === 'ready');
     const changes = db.orders.filter(o => o.status === 'revision');
+    
     $('homeActive').innerHTML = active.slice(0,3).map(o=>orderCard(o)).join('') || empty('لا توجد طلبات قيد التنفيذ');
     $('homeReady').innerHTML = ready.slice(0,2).map(o=>orderCard(o)).join('') || empty('لا توجد أعمال جاهزة');
-    $('ordersList').innerHTML = active.map(o=>orderCard(o)).join('') || empty('لا توجد طلبات جديدة');
+    $('ordersList').innerHTML = active.map(o=>orderCard(o)).join('') || empty('لا توجد طلبات');
     $('readyList').innerHTML = ready.map(o=>orderCard(o)).join('') || empty('لا توجد أعمال جاهزة');
     $('changesList').innerHTML = changes.map(o=>orderCard(o)).join('') || empty('لا توجد تعديلات');
     
-    // الواردة للسكرتير والمصمم
-    $('inboxList').innerHTML = inbox.map(o => `
-      <div class="order-card" style="border-right-color:#f5a524">
-        <div class="order-main" onclick="approveInboxItem('${o.id}')">
-          <span class="file-icon" style="background:#fff5ea;color:#e07000"><i class="fas fa-envelope"></i></span>
-          <div class="order-text">
-            <strong class="order-title">${esc(o.title)}</strong>
-            <div class="order-secondary">
-              <span class="meta-chip">الوسيط: ${esc(o.broker)}</span>
-              <span class="meta-chip">${fmtDate(o.dueAt)}</span>
-              ${o.priceAmount ? `<span class="meta-chip" dir="ltr">${money(o.priceAmount)}</span>` : ''}
-            </div>
+    // عرض الوسطاء
+    $('brokersList').innerHTML = (db.brokers || []).map(b => {
+      const link = window.location.origin + window.location.pathname + '?gist=' + b.gistId;
+      return `<div class="order-card" style="border-right-color:#00a3c4; height:auto; padding:12px;">
+        <div class="order-main" style="flex-direction:column; align-items:flex-start; gap:8px; width:100%;">
+          <div style="display:flex; justify-content:space-between; width:100%;">
+            <strong style="font-size:0.85rem;">${esc(b.name)}</strong>
+            <span class="status-pill status-progress">رابط الوسيط</span>
           </div>
-          <span class="status-pill status-revision">اعتماد</span>
+          <div style="display:flex; width:100%; gap:6px; margin-top:4px;">
+            <input type="text" value="${link}" readonly style="flex:1; font-size:0.7rem; padding:6px; border-radius:8px; border:1px solid var(--border); direction:ltr; background:var(--surface2);">
+            <button onclick="navigator.clipboard.writeText('${link}'); showToast('تم نسخ الرابط')" style="background:var(--primary); color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:0.7rem; cursor:pointer;">نسخ</button>
+          </div>
         </div>
-      </div>
-    `).join('') || empty('لا توجد طلبات واردة من الوسطاء');
-    $('navInbox').classList.remove('hidden');
-    if(inbox.length > 0) $('navInbox').innerHTML = `<i class="fas fa-inbox"></i><span>الواردة (${inbox.length})</span>`;
-    else $('navInbox').innerHTML = `<i class="fas fa-inbox"></i><span>الواردة</span>`;
+      </div>`;
+    }).join('') || empty('لم تقم بإضافة أي وسيط بعد');
+    
+    $('navBrokers').classList.remove('hidden');
+    $('navLogout').style.display = 'flex';
   }
   updateHeader();
 }
@@ -457,8 +470,10 @@ function switchPage(id){
   document.querySelector('.screen').scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ============ Broker Action ============ */
+/* ============ Broker Action (طلب جديد) ============ */
 function openNewRequest(){
+  if (!state.gistId) return alert('يجب أن تكون في وضع الوسيط لطلب تصميم.');
+  
   const today = new Date();
   const daysGrid = [];
   
@@ -491,90 +506,131 @@ function openNewRequest(){
       <div id="selectedDayText" style="font-size:0.75rem;color:var(--primary);font-weight:bold;height:16px;"></div>
     </div>
     
-    <button class="primary-btn" style="width:100%" type="submit"><i class="fas fa-paper-plane"></i> إرسال الطلب</button></form>`);
+    <button class="primary-btn" style="width:100%" type="submit"><i class="fas fa-paper-plane"></i> إرسال الطلب للمدير</button></form>`);
   
-  $('requestForm').addEventListener('submit',async e=>{
+  $('requestForm').addEventListener('submit',e=>{
     e.preventDefault();
     const dueAt = $('reqDue').value;
     if(!dueAt) { alert('الرجاء اختيار يوم التسليم من الأزرار'); return; }
     
     const title=$('reqTitle').value.trim(), price=Number($('reqPrice').value) || 0;
-    const newOrder = {
-      id:'b'+Date.now(), title, broker: state.userName, dueAt, priceAmount: price,
-      status:'new', payments:[], createdAt:new Date().toISOString()
+    
+    // توليد رابط يحتوي على البيانات
+    const orderData = {
+      gistId: state.gistId,
+      brokerName: currentBrokerGist.brokerName,
+      order: {
+        id:'b'+Date.now(), title, dueAt, priceAmount: price,
+        status:'new', payments:[], createdAt:new Date().toISOString()
+      }
     };
-    db.orders.unshift(newOrder);
-    await saveData();
-    closeSheet(); paint();
-    showSubmitFeedback('تم إرسال طلبك بنجاح، سيتم التواصل معك');
+    
+    const encoded = btoa(encodeURIComponent(JSON.stringify(orderData)));
+    const link = window.location.origin + window.location.pathname + '?approve=' + encoded;
+    
+    // نسخ الرابط وفتح واتساب
+    navigator.clipboard.writeText(link).then(() => {
+      closeSheet();
+      showSubmitFeedback('تم تجهيز الطلب! أرسل الرابط للمدير');
+      setTimeout(() => {
+        window.open('https://wa.me/?text=' + encodeURIComponent('طلب تصميم جديد:\n' + title + '\n\nاضغط لاعتماد الطلب:\n' + link), '_blank');
+      }, 1500);
+    });
   });
 }
 
 function selectDay(iso, btn) {
   $('reqDue').value = iso;
-  
   document.querySelectorAll('.day-btn').forEach(b => {
-    b.style.background = 'var(--surface2)';
-    b.style.borderColor = 'var(--border)';
-    b.style.color = 'var(--text-main)';
+    b.style.background = 'var(--surface2)'; b.style.borderColor = 'var(--border)'; b.style.color = 'var(--text-main)';
     b.querySelector('span').style.color = 'var(--text-sec)';
   });
-  
-  btn.style.background = 'var(--primary)';
-  btn.style.borderColor = 'var(--primary)';
-  btn.style.color = '#fff';
+  btn.style.background = 'var(--primary)'; btn.style.borderColor = 'var(--primary)'; btn.style.color = '#fff';
   btn.querySelector('span').style.color = 'rgba(255,255,255,0.8)';
-  
   const d = new Date(iso);
   $('selectedDayText').textContent = 'تم اختيار: ' + arabicDays[d.getDay()] + ' ' + d.getDate() + ' ' + arabicMonths[d.getMonth()];
 }
 
-/* ============ Admin Action ============ */
-function approveInboxItem(id){
-  const item = inbox.find(x=>x.id===id);
-  if(!item) return;
-  showSheet('اعتماد الطلب',`<form id="approveForm">
-    <div class="detail-line"><span>الوسيط</span><strong>${esc(item.broker)}</strong></div>
-    <div class="form-group" style="margin-top:10px"><label>اسم العمل</label><input class="form-control" id="appTitle" value="${esc(item.title)}"></div>
-    <div class="form-group"><label>السعر (يمكنك تعديله أو تركه فارغاً)</label><input class="form-control" id="appPrice" type="number" min="0" value="${item.priceAmount || ''}" placeholder="اتركه فارغاً إذا لم يتم الاتفاق"></div>
-    <button class="primary-btn" style="width:100%" type="submit">اعتماد ونقل للنظام</button></form>`);
+/* ============ Manager Action (اعتماد الرابط) ============ */
+function handleApprovalLink() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const encoded = urlParams.get('approve');
+  if (!encoded) return;
   
-  $('approveForm').addEventListener('submit',async e=>{
-    e.preventDefault();
-    const price = Number($('appPrice').value) || 0;
-    const title = $('appTitle').value.trim();
+  try {
+    const data = JSON.parse(decodeURIComponent(atob(encoded)));
+    const o = data.order;
     
-    // 1. Move to private DB (hajz-data)
-    db.orders.unshift({
-      id: item.id, title, broker: item.broker, dueAt: item.dueAt, priceAmount: price,
-      status: 'new', payments: [], createdAt: item.createdAt
+    showSheet('اعتماد الطلب', `<form id="approveForm">
+      <div class="detail-line"><span>الوسيط</span><strong>${esc(data.brokerName)}</strong></div>
+      <div class="detail-line"><span>الطلب</span><strong>${esc(o.title)}</strong></div>
+      <div class="detail-line"><span>التسليم</span><strong>${fmtDate(o.dueAt)}</strong></div>
+      <div class="form-group" style="margin-top:10px"><label>السعر النهائي (ر.س)</label><input class="form-control" id="appPrice" type="number" min="0" value="${o.priceAmount || ''}"></div>
+      <button class="primary-btn" style="width:100%" type="submit">اعتماد ونقل للنظام</button></form>`);
+      
+    $('approveForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const finalPrice = Number($('appPrice').value) || 0;
+      
+      // 1. إضافة إلى hajz-data
+      db.orders.unshift({ ...o, priceAmount: finalPrice });
+      await saveData();
+      
+      // 2. تحديث Gist الخاص بالوسيط
+      const brokerGist = await fetchGist(data.gistId);
+      if (brokerGist) {
+        const bOrder = brokerGist.data.orders.find(x => x.id === o.id);
+        if (bOrder) {
+          bOrder.priceAmount = finalPrice;
+          await updateGist(data.gistId, brokerGist.data);
+        } else {
+          brokerGist.data.orders.unshift({ ...o, priceAmount: finalPrice });
+          await updateGist(data.gistId, brokerGist.data);
+        }
+      }
+      
+      closeSheet();
+      window.history.replaceState({}, document.title, window.location.pathname); // تنظيف الرابط
+      paint();
+      showSubmitFeedback('تم اعتماد الطلب بنجاح');
     });
+  } catch(e) {
+    alert('الرابط غير صالح أو تالف.');
+  }
+}
+
+/* ============ إنشاء وسيط (Gist جديد) ============ */
+async function createBrokerGist() {
+  const name = prompt('اسم الوسيط الجديد:');
+  if(!name) return;
+  
+  try {
+    showToast('جاري إنشاء الحساب...');
+    const res = await fetch('https://api.github.com/gists', {
+      method: 'POST',
+      headers: ghHeaders(),
+      body: JSON.stringify({
+        description: 'Hajz Broker: ' + name,
+        public: false,
+        files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }) } }
+      })
+    });
+    
+    if(!res.ok) throw new Error('فشل إنشاء Gist');
+    const gist = await res.json();
+    
+    db.brokers.push({ name, gistId: gist.id });
     await saveData();
-
-    // 2. Update Broker's specific repo
-    const brokerRepo = getBrokerRepoName(item.broker);
-    const brokerDataRes = await fetchRepo(brokerRepo);
-    let brokerDb = brokerDataRes.data || { orders: [] };
-    
-    const bItem = brokerDb.orders.find(x => x.id === item.id);
-    if (bItem) {
-      bItem.title = title; 
-      bItem.priceAmount = price; 
-      bItem.status = 'new';
-      await pushRepo(brokerRepo, brokerDb, brokerDataRes.sha);
-    }
-
-    // 3. Remove from local inbox view and re-paint
-    inbox = inbox.filter(x => x.id !== item.id);
-    
-    closeSheet(); paint();
-    showSubmitFeedback('تم اعتماد الطلب وإضافته');
-  });
+    paint();
+    showToast('تم إنشاء الوسيط بنجاح ✓');
+  } catch(e) {
+    alert('حدث خطأ: ' + e.message);
+  }
 }
 
 /* ============ Common ============ */
 function openOrder(id){
-  const o = db.orders.find(x=>x.id===id);
+  const o = (state.gistId ? currentBrokerGist.orders : db.orders).find(x=>x.id===id);
   if(!o) return;
   showSheet('تفاصيل الطلب',`
     <div class="detail-line"><span>اسم العمل</span><strong>${esc(o.title)}</strong></div>
@@ -586,7 +642,7 @@ function openOrder(id){
 
 function logout(){
   if(!confirm('تسجيل الخروج؟'))return;
-  localStorage.clear(); location.reload();
+  localStorage.clear(); window.location.href = window.location.pathname;
 }
 
 let submitTimers=[];
@@ -594,12 +650,12 @@ function showSubmitFeedback(successText, onDone){
   const ov=$('submitOverlay'),box=$('submitBox'),txt=$('submitText');
   submitTimers.forEach(clearTimeout);submitTimers=[];
   box.className='submit-box';void box.offsetWidth;box.classList.add('loading');
-  txt.textContent='جاري الإرسال…';ov.classList.add('open');
+  txt.textContent='جاري المعالجة…';ov.classList.add('open');
   submitTimers.push(setTimeout(()=>{box.classList.remove('loading');box.classList.add('success');txt.textContent=successText;},1450));
   submitTimers.push(setTimeout(()=>{ov.classList.remove('open');box.className='submit-box';if(onDone)onDone();},3000));
 }
 
-/* ============ Login & Init ============ */
+/* ============ Init & Boot ============ */
 async function handleLogin(){
   const role=$('loginRole').value, name=$('loginName').value.trim(), token=$('loginToken').value.trim();
   if(!name||!token){alert('أدخل الاسم والرمز');return}
@@ -607,31 +663,8 @@ async function handleLogin(){
   state.token=token; state.role=role; state.userName=name;
   
   try{
-    if (role === 'broker') {
-      const repoName = getBrokerRepoName(name);
-      const res = await fetchRepo(repoName);
-      db = res.data || { orders: [] };
-      if(!Array.isArray(db.orders)) db.orders = [];
-    } else {
-      const resData = await fetchRepo('hajz-data');
-      db = resData.data || { orders: [], mediators: [] };
-      if(!db.orders) db.orders = [];
-      
-      // Fetch incoming requests from all known brokers
-      const brokerList = db.mediators || [];
-      inbox = [];
-      await Promise.all(brokerList.map(async (bName) => {
-        const repoName = getBrokerRepoName(bName);
-        const res = await fetchRepo(repoName);
-        const brokerItems = res.data.orders || [];
-        brokerItems.forEach(item => {
-          if (!db.orders.some(o => o.id === item.id)) {
-            item.broker = bName;
-            inbox.push(item);
-          }
-        });
-      }));
-    }
+    const resData = await fetchRepo('hajz-data');
+    db = resData.data || { orders: [], brokers: [] };
     
     localStorage.setItem('hajz_token',token);
     localStorage.setItem('hajz_role',role);
@@ -641,6 +674,7 @@ async function handleLogin(){
     $('mainScreen').style.display='flex';
     $('bottomNavWrapper').style.display='block';
     paint();
+    handleApprovalLink(); // التحقق مما إذا كان الرابط يحتوي على طلب للاعتماد
     
   }catch(e){
     alert('فشل الاتصال: '+e.message);
@@ -656,6 +690,26 @@ $('darkToggle').addEventListener('click',()=>{
 $('logoutBtn').addEventListener('click', logout);
 
 async function boot(){
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // وضع الوسيط (بدون تسجيل دخول)
+  if (urlParams.has('gist')) {
+    const gistId = urlParams.get('gist');
+    const gist = await fetchGist(gistId);
+    if (!gist) {
+      alert('رابط الوسيط غير صالح.');
+      return;
+    }
+    state.gistId = gistId;
+    currentBrokerGist = gist.data;
+    
+    $('mainScreen').style.display='flex';
+    $('bottomNavWrapper').style.display='block';
+    paint();
+    return;
+  }
+  
+  // وضع السكرتير/المصمم
   if(state.token && state.role && state.userName){
     $('loginOverlay').style.display='flex';
     $('loginRole').value=state.role; $('loginName').value=state.userName; $('loginToken').value=state.token;
