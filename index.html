@@ -603,44 +603,42 @@ function handleApprovalLink() {
 }
 
 /* ============ إنشاء وسيط (Gist جديد) ============ */
-async function createBrokerGist() {
-  const name = prompt('اسم الوسيط الجديد:');
-  if(!name) return;
-  if(!state.token) { alert('لا يوجد رمز GitHub صالح. سجّل الدخول من جديد.'); return; }
-  try {
-    showToast('جاري التحقق من صلاحية GitHub...');
-    const authRes = await fetch('https://api.github.com/user', { headers: ghHeaders() });
-    const authInfo = await authRes.json().catch(() => ({}));
-    if(!authRes.ok) {
-      localStorage.removeItem('hajz_token');
-      throw new Error(authInfo.message || `GitHub HTTP ${authRes.status}`);
+function createBrokerGist() {
+  if(!state.token) { showToast('سجّل الدخول أولاً'); return; }
+  showSheet('إضافة وسيط جديد', `<form id="brokerForm">
+    <div class="form-group"><label for="brokerNameInput">اسم الوسيط</label><input class="form-control" id="brokerNameInput" required maxlength="80" placeholder="مثال: أحمد محمد" autocomplete="off"></div>
+    <button class="primary-btn" id="brokerSubmitBtn" style="width:100%" type="submit"><i class="fas fa-link"></i> إنشاء الرابط</button>
+  </form>`);
+  $('brokerNameInput').focus();
+  $('brokerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('brokerNameInput').value.trim();
+    if(!name) return;
+    const btn = $('brokerSubmitBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
+    try {
+      const authRes = await fetch('https://api.github.com/user', { headers: ghHeaders() });
+      const authInfo = await authRes.json().catch(() => ({}));
+      if(!authRes.ok) {
+        localStorage.removeItem('hajz_token');
+        const error = new Error(authInfo.message || `GitHub HTTP ${authRes.status}`); error.status = authRes.status; throw error;
+      }
+      const res = await fetch('https://api.github.com/gists', {
+        method: 'POST', headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: 'Hajz Broker: ' + name, public: false, files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }, null, 2) } } })
+      });
+      const result = await res.json().catch(() => ({}));
+      if(!res.ok) { const error = new Error(result.message || `GitHub HTTP ${res.status}`); error.status = res.status; throw error; }
+      if(!result.id) throw new Error('لم يُرجع GitHub معرّفاً صالحاً');
+      db.brokers.push({ name, gistId: result.id });
+      await saveData();
+      closeSheet(); paint(); showToast('تم إنشاء الرابط بنجاح ✓');
+    } catch(e) {
+      const detail = e.status === 401 ? 'الرمز منتهي. سجّل الدخول من جديد.' : e.status === 403 ? 'صلاحية Gists غير متاحة لهذا الرمز.' : e.message;
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-link"></i> إعادة المحاولة';
+      showToast(detail);
     }
-    showToast('جاري إنشاء الحساب...');
-    const res = await fetch('https://api.github.com/gists', {
-      method: 'POST',
-      headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        description: 'Hajz Broker: ' + name,
-        public: false,
-        files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }, null, 2) } }
-      })
-    });
-    const result = await res.json().catch(() => ({}));
-    if(!res.ok) {
-      const error = new Error(result.message || `GitHub HTTP ${res.status}`);
-      error.status = res.status;
-      throw error;
-    }
-    if(!result.id) throw new Error('لم يُرجع GitHub معرّف Gist صالحاً');
-    db.brokers.push({ name, gistId: result.id });
-    await saveData();
-    paint();
-    showToast('تم إنشاء الوسيط بنجاح ✓');
-  } catch(e) {
-    const detail = e.status === 401 ? 'الرمز غير صالح أو منتهي. سجّل الخروج ثم ادخل برمز Classic يملك repo و gist.' :
-      e.status === 403 ? 'الرمز صالح، لكنه لا يملك صلاحية إنشاء Gists أو وصل إلى حد الطلبات.' : e.message;
-    alert('تعذر إنشاء الوسيط: ' + detail);
-  }
+  });
 }
 
 /* ============ Common ============ */
