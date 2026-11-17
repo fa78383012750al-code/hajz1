@@ -273,6 +273,21 @@ const REPOS = {
   DATA: { owner: 'fa78383012750al-code', repo: 'hajz-data', path: 'data.json' }
 };
 
+// رابط الويب العام هو الرابط الذي يُشارك مع الوسيط؛ لا نستخدم أصل WebView المحلي داخل APK.
+const PUBLIC_APP_URL = 'https://fa78383012750al-code.github.io/hajz1/';
+function publicAppLink(params) {
+  const url = new URL(PUBLIC_APP_URL);
+  Object.entries(params || {}).forEach(([key, value]) => url.searchParams.set(key, value));
+  return url.toString();
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) {
+    const input = document.createElement('textarea'); input.value = text; input.style.position = 'fixed'; input.style.opacity = '0';
+    document.body.appendChild(input); input.select(); document.execCommand('copy'); input.remove();
+  }
+}
+
 const state = {
   token: localStorage.getItem('hajz_token') || '',
   role: localStorage.getItem('hajz_role') || '',
@@ -443,7 +458,7 @@ function paint(){
     
     // عرض الوسطاء
     $('brokersList').innerHTML = (db.brokers || []).map(b => {
-      const link = window.location.origin + window.location.pathname + '?gist=' + b.gistId;
+      const link = publicAppLink({ gist: b.gistId });
       return `<div class="order-card" style="border-right-color:#00a3c4; height:auto; padding:12px;">
         <div class="order-main" style="flex-direction:column; align-items:flex-start; gap:8px; width:100%;">
           <div style="display:flex; justify-content:space-between; width:100%;">
@@ -452,7 +467,7 @@ function paint(){
           </div>
           <div style="display:flex; width:100%; gap:6px; margin-top:4px;">
             <input type="text" value="${link}" readonly style="flex:1; font-size:0.7rem; padding:6px; border-radius:8px; border:1px solid var(--border); direction:ltr; background:var(--surface2);">
-            <button onclick="navigator.clipboard.writeText('${link}'); showToast('تم نسخ الرابط')" style="background:var(--primary); color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:0.7rem; cursor:pointer;">نسخ</button>
+            <button onclick="copyText('${link}'); showToast('تم نسخ الرابط')" style="background:var(--primary); color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:0.7rem; cursor:pointer;">نسخ</button>
           </div>
         </div>
       </div>`;
@@ -526,10 +541,10 @@ function openNewRequest(){
     };
     
     const encoded = btoa(encodeURIComponent(JSON.stringify(orderData)));
-    const link = window.location.origin + window.location.pathname + '?approve=' + encoded;
+    const link = publicAppLink({ approve: encoded });
     
     // نسخ الرابط وفتح واتساب
-    navigator.clipboard.writeText(link).then(() => {
+    copyText(link).then(() => {
       closeSheet();
       showSubmitFeedback('تم تجهيز الطلب! أرسل الرابط للمدير');
       setTimeout(() => {
@@ -611,7 +626,7 @@ async function createBrokerGist() {
       headers: ghHeaders(),
       body: JSON.stringify({
         description: 'Hajz Broker: ' + name,
-        public: false,
+        public: true,
         files: { 'data.json': { content: JSON.stringify({ brokerName: name, orders: [] }) } }
       })
     });
