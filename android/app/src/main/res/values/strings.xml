@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">حجز</string>
+    <string name="title_activity_main">حجز</string>
+    <string name="package_name">com.fa78383012750alcode.hajz</string>
+    <string name="custom_url_scheme">com.fa78383012750alcode.hajz</string>
+</resources>

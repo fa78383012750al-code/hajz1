@@ -1,0 +1,33 @@
+{
+  "name": "hajz-android",
+  "version": "1.0.0",
+  "description": "هذا هو المستودع الموحد للتطبيق. الملف الرئيسي هو `index.html`، وملفات التثبيت كتطبيق ويب تقدمي هي `manifest.json` و`sw.js`، بينما الصور موجودة داخل `icons/`.",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "web:serve": "python3 -m http.server 4173",
+    "android:copy": "rm -rf www && mkdir -p www && cp index.html manifest.json sw.js version.json www/ && cp -r icons www/ && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build": "cd android && ./gradlew assembleDebug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fa78383012750al-code/hajz1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fa78383012750al-code/hajz1/issues"
+  },
+  "homepage": "https://github.com/fa78383012750al-code/hajz1#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}

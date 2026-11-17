@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>نظام GOO • إدارة المحتوى التعليمي</title>
+    <title>حجز • إدارة المحتوى التعليمي</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#2a6496">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="GOO">
+    <meta name="apple-mobile-web-app-title" content="حجز">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
@@ -2109,7 +2109,7 @@
     <!-- ==================== Splash Screen (يظهر أثناء تحميل التطبيق) ==================== -->
     <div class="app-splash" id="app-splash">
         <div class="app-splash-badge"><i class="fas fa-graduation-cap"></i></div>
-        <div class="app-splash-title">نظام GOO</div>
+        <div class="app-splash-title">حجز</div>
         <div class="app-splash-sub">إدارة المحتوى التعليمي</div>
         <div class="app-splash-spinner"></div>
     </div>
@@ -2135,7 +2135,7 @@
                 <div class="home-button" id="global-home-btn" onclick="navigateTo('home')" title="الصفحة الرئيسية">
                     <i class="fas fa-home"></i>
                 </div>
-                <div class="greeting"><h2>أهلاً وسهلاً <span class="star">★</span></h2><p id="app-title">نظام GOO</p></div>
+                <div class="greeting"><h2>أهلاً وسهلاً <span class="star">★</span></h2><p id="app-title">حجز</p></div>
             </div>
             <div class="header-badge"><i class="fas fa-graduation-cap"></i><span>تعليمي</span> <span class="sync-badge" id="sync-status"><i class="fas fa-cloud"></i> متصل</span></div>
         </div>
@@ -2333,7 +2333,7 @@
                 </div>
 
                 <!-- PDF template hidden -->
-                <div id="invoice-pdf-template" style="display:none;padding:30px;font-family:'Tajawal',sans-serif;direction:rtl;background:#fff;color:#333;"><div style="display:flex;justify-content:space-between;border-bottom:2px solid #2a6496;padding-bottom:15px;margin-bottom:20px;"><div><h1 style="color:#2a6496;margin:0;font-size:22px;">نظام GOO</h1></div><div style="text-align:left;"><div id="pdf-invoice-number" style="font-weight:bold;">#INV-0000</div><div id="pdf-invoice-date" style="color:#666;">-</div></div></div><div style="margin-bottom:20px;"><p><strong>العميل:</strong> <span id="pdf-customer-name">-</span></p><p><strong>الوسيط:</strong> <span id="pdf-broker-name">-</span></p><p><strong>المصمم:</strong> <span id="pdf-designer-name">-</span></p></div><table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><thead><tr style="background:#f8fafc;"><th style="padding:10px;border:1px solid #dde8f0;">الوصف</th><th style="padding:10px;border:1px solid #dde8f0;">المبلغ الإجمالي</th><th style="padding:10px;border:1px solid #dde8f0;">حصة المصمم (50%)</th></tr></thead><tbody><tr><td style="padding:10px;border:1px solid #dde8f0;">خدمات تصميم</td><td style="padding:10px;border:1px solid #dde8f0;text-align:left;"><span id="pdf-amount">0</span> ر.س</td><td style="padding:10px;border:1px solid #dde8f0;text-align:left;"><span id="pdf-designer-share">0</span> ر.س</td></tr></tbody></table><div style="display:flex;justify-content:flex-end;"><div style="width:240px;"><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>إجمالي الفاتورة:</span><span id="pdf-total">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>حصة المصمم (50%):</span><span id="pdf-paid">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>المستلم من الوسيط:</span><span id="pdf-broker-received">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:bold;color:#2a6496;"><span>المتبقي على الوسيط:</span><span id="pdf-debt">0</span></div></div></div></div>
+                <div id="invoice-pdf-template" style="display:none;padding:30px;font-family:'Tajawal',sans-serif;direction:rtl;background:#fff;color:#333;"><div style="display:flex;justify-content:space-between;border-bottom:2px solid #2a6496;padding-bottom:15px;margin-bottom:20px;"><div><h1 style="color:#2a6496;margin:0;font-size:22px;">حجز</h1></div><div style="text-align:left;"><div id="pdf-invoice-number" style="font-weight:bold;">#INV-0000</div><div id="pdf-invoice-date" style="color:#666;">-</div></div></div><div style="margin-bottom:20px;"><p><strong>العميل:</strong> <span id="pdf-customer-name">-</span></p><p><strong>الوسيط:</strong> <span id="pdf-broker-name">-</span></p><p><strong>المصمم:</strong> <span id="pdf-designer-name">-</span></p></div><table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><thead><tr style="background:#f8fafc;"><th style="padding:10px;border:1px solid #dde8f0;">الوصف</th><th style="padding:10px;border:1px solid #dde8f0;">المبلغ الإجمالي</th><th style="padding:10px;border:1px solid #dde8f0;">حصة المصمم (50%)</th></tr></thead><tbody><tr><td style="padding:10px;border:1px solid #dde8f0;">خدمات تصميم</td><td style="padding:10px;border:1px solid #dde8f0;text-align:left;"><span id="pdf-amount">0</span> ر.س</td><td style="padding:10px;border:1px solid #dde8f0;text-align:left;"><span id="pdf-designer-share">0</span> ر.س</td></tr></tbody></table><div style="display:flex;justify-content:flex-end;"><div style="width:240px;"><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>إجمالي الفاتورة:</span><span id="pdf-total">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>حصة المصمم (50%):</span><span id="pdf-paid">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;"><span>المستلم من الوسيط:</span><span id="pdf-broker-received">0</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:bold;color:#2a6496;"><span>المتبقي على الوسيط:</span><span id="pdf-debt">0</span></div></div></div></div>
             </div>
 
             <div id="page-works" class="screen-page">
@@ -4220,8 +4220,8 @@
             // جلب الإعدادات من localStorage
             const settings = await loadGithubSettingsFromFirestore();
             const token = settings.token || '';
-            const repo = settings.repo || 'goo';
-            const user = settings.user || 'fa78383012736al-a11y';
+            const repo = settings.repo || 'hajz1';
+            const user = settings.user || 'fa78383012750al-code';
             const folder = getGithubFolderForTab(tab);
             if (!token) return alert('يرجى ضبط إعدادات التزامن السحابي أولاً');
             const name = item.name || item.id;
@@ -5547,7 +5547,7 @@
                 localStorage.setItem('gh_token', token);
             }
             localStorage.setItem('gh_repo', repo);
-            localStorage.setItem('gh_user', 'fa78383012736al-a11y');
+            localStorage.setItem('gh_user', 'fa78383012750al-code');
             localStorage.setItem('gh_folder', folder);
             document.getElementById('cloud-inline-status').textContent = '✅ تم الحفظ — جاري مزامنة البيانات...';
             updateSyncStatus();
@@ -6043,7 +6043,7 @@
             fetchGithubFiles().catch(console.error);
 
             document.getElementById('app-splash')?.classList.add('hidden');
-            console.log('🚀 نظام GOO - GitHub Sync جاهز');
+            console.log('🚀 حجز - GitHub Sync جاهز');
         }
 
         // إعادة حساب مقياس المعاينة عند تغيير اتجاه الجهاز أو حجم النافذة
